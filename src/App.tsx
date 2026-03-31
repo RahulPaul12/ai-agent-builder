@@ -1,39 +1,6 @@
 import { useState, useEffect } from 'react'
+import type  { AgentData, SavedAgent } from '../types/types'
 
-// Define the types based on data.json
-interface AgentProfile {
-  id: string
-  name: string
-  description: string
-}
-
-interface Skill {
-  id: string
-  name: string
-  category: string
-  description: string
-}
-
-interface Layer {
-  id: string
-  name: string
-  type: string
-  description: string
-}
-
-interface AgentData {
-  agentProfiles: AgentProfile[]
-  skills: Skill[]
-  layers: Layer[]
-}
-
-interface SavedAgent {
-  name: string
-  profileId: string
-  skillIds: string[]
-  layerIds: string[]
-  provider?: string
-}
 
 function App() {
   const [data, setData] = useState<AgentData | null>(null)
@@ -50,13 +17,13 @@ function App() {
   const [savedAgents, setSavedAgents] = useState<SavedAgent[]>([])
   const [selectedProvider, setSelectedProvider] = useState<string>('')
 
+  const [sessionTime, setSessionTime] = useState(0)
+
   const handleDeleteAgent = (indexToRemove: number) => {
     const updatedAgents = savedAgents.filter((_, index) => index !== indexToRemove)
     setSavedAgents(updatedAgents)
     localStorage.setItem('savedAgents', JSON.stringify(updatedAgents))
   }
-
-  const [sessionTime, setSessionTime] = useState(0)
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -119,14 +86,13 @@ function App() {
   const handleLayerSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const layerId = e.target.value;
     if (layerId && !selectedLayers.includes(layerId)) {
-      selectedLayers.push(layerId)
-      setSelectedLayers(selectedLayers)
+      setSelectedLayers([...selectedLayers, layerId])
     }
     e.target.value = ""; // Reset dropdown
 
     fetchAPI()
   }
-
+ 
   const handleSkillSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const skillId = e.target.value;
     if (skillId && !selectedSkills.includes(skillId)) {
@@ -167,7 +133,7 @@ function App() {
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', padding: '1rem', fontFamily: 'sans-serif' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', padding: '1rem', fontFamily: 'sans-serif' }} >
       <header style={{ marginBottom: '2rem' }}>
         <h1>AI Agent Builder</h1>
         <p>Design your custom AI personality and capability set.</p>
