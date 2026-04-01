@@ -1,6 +1,11 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import type  { AgentData, SavedAgent } from '../types/types'
 import Loader from '../components/Loader'
+import SavedAgentCard from '../components/SavedAgentCard'
+import SelectedListComponent from '../components/SelectedListComponent'
+import Select from 'react-select'
+import Particles, { initParticlesEngine } from '@tsparticles/react'
+import { loadSlim } from '@tsparticles/slim'
 
 function App() {
   const [data, setData] = useState<AgentData | null>(null)
@@ -12,12 +17,14 @@ function App() {
   const [selectedSkills, setSelectedSkills] = useState<string[]>([])
   const [selectedLayers, setSelectedLayers] = useState<string[]>([])
 
+ 
   // Saving states
   const [agentName, setAgentName] = useState('')
   const [savedAgents, setSavedAgents] = useState<SavedAgent[]>([])
   const [selectedProvider, setSelectedProvider] = useState<string>('')
 
   const [sessionTime, setSessionTime] = useState(0)
+
 
   const handleDeleteAgent = (indexToRemove: number) => {
     const updatedAgents = savedAgents.filter((_, index) => index !== indexToRemove)
@@ -133,7 +140,9 @@ function App() {
   }
 
   return (
+    
     <>
+    
     {loading && (      
        <Loader/>     
     )}
@@ -165,7 +174,7 @@ function App() {
       <main style={{ display: 'flex', flexDirection: 'column', gap: '2rem', flex: 1 }}>
         <div style={{ display: 'flex', gap: '2rem', flexDirection: 'row' }}>
           {/* Left pane: Selections */}
-          <section className='glass' style={{ flex: '1 1 50%', borderRight: '1px solid #ccc', paddingRight: '1rem' }}>
+          <section className='glass' style={{ flex: '1 1 50%', borderRight: '1px solid #ccc', padding: '1rem' }}>
             <h2>Configuration Options</h2>
             {error && <div style={{ color: 'red', marginBottom: '1rem' }}>Error: {error}</div>}
             
@@ -190,6 +199,9 @@ function App() {
                       <option key={p.id} value={p.id}>{p.name}</option>
                     ))}
                   </select>
+
+                  
+
                 </div>
 
                 <div>
@@ -241,10 +253,10 @@ function App() {
           </section>
 
           {/* Right pane: Selected configuration preview */}
-          <section className='glass' style={{ flex: '1 1 50%', paddingLeft: '1rem' }}>
+          <section className='glass p-4' style={{ flex: '1 1 50%',}}>
             <h2>Current Agent Configuration</h2>
 
-            <div style={{  padding: '1rem', borderRadius: '8px', minHeight: '300px' }}>
+            <div style={{  borderRadius: '8px', minHeight: '300px' }}>
               <h3 style={{ marginTop: 0 }}>Profile</h3>
               {selectedProfile && data ? (
                 <p>
@@ -255,53 +267,22 @@ function App() {
                 <p style={{ color: '#888' }}>No profile selected.</p>
               )}
 
-              <h3>Selected Skills</h3>
-              {selectedSkills.length > 0 && data ? (
-                <ul style={{ paddingLeft: '1.5rem' }}>
-                  {selectedSkills.map(skillId => {
-                    const skill = data.skills.find(s => s.id === skillId);
-                    return (
-                      <li key={skillId} style={{ marginBottom: '0.5rem' }}>
-                        {skill?.name}
-                        <button
-                          onClick={() => setSelectedSkills(selectedSkills.filter(id => id !== skillId))}
-                          style={{ marginLeft: '1rem', fontSize: '0.8rem', cursor: 'pointer' }}
-                        >
-                          Remove
-                        </button>
-                      </li>
-                    )
-                  })}
-                </ul>
-              ) : (
-                <p style={{ color: '#888' }}>No skills added.</p>
-              )}
-
-              <h3>Selected Layers</h3>
-              {selectedLayers.length > 0 && data ? (
-                <ul style={{ paddingLeft: '1.5rem' }}>
-                  {selectedLayers.map(layerId => {
-                    const layer = data.layers.find(l => l.id === layerId);
-                    return (
-                      <li key={layerId} style={{ marginBottom: '0.5rem' }}>
-                        {layer?.name}
-                        <button
-                          onClick={() => setSelectedLayers(selectedLayers.filter(id => id !== layerId))}
-                          style={{ marginLeft: '1rem', fontSize: '0.8rem', cursor: 'pointer' }}
-                        >
-                          Remove
-                        </button>
-                      </li>
-                    )
-                  })}
-                </ul>
-              ) : (
-                <p style={{ color: '#888' }}>No layers added.</p>
-              )}
+              <SelectedListComponent 
+                  title="Skills"
+                  selectedIds={selectedSkills}
+                  allData={data?.skills}
+                  onRemove={(id) => setSelectedSkills(prev => prev.filter(s => s !== id))}
+              />
+              <SelectedListComponent 
+                  title="Layers"
+                  selectedIds={selectedLayers}
+                  allData={data?.layers}
+                  onRemove={(id) => setSelectedLayers(prev => prev.filter(s => s !== id))}
+              />
 
               <h3>Selected Provider</h3>
               {selectedProvider ? (
-                <p><strong>{selectedProvider}</strong></p>
+                <p className="glass w-fit! px-2 py-1 mt-2"><strong>{selectedProvider}</strong></p>
               ) : (
                 <p style={{ color: '#888' }}>No provider selected.</p>
               )}
@@ -316,7 +297,7 @@ function App() {
                     onChange={e => setAgentName(e.target.value)}
                     style={{ flex: 1, padding: '0.5rem' }}
                   />
-                  <button onClick={handleSaveAgent} style={{ padding: '0.5rem 1rem' }}>
+                  <button onClick={handleSaveAgent} style={{ padding: '0.5rem 1rem' }} className="btn-glow flex items-center gap-2 px-5 py-2.5 rounded-2xl font-display text-sm animated-gradient-button">
                     Save Agent
                   </button>
                 </div>
@@ -344,35 +325,7 @@ function App() {
             </div>
             <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap' }}>
               {savedAgents.map((agent, index) => (
-                <div key={index} className='glass' style={{ padding: '1rem', borderRadius: '8px', border: '1px solid #b2ebf2', minWidth: '220px', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}>
-                  <h3 style={{ marginTop: 0, color: '#006064' }}>{agent.name}</h3>
-                  <p style={{ margin: '0.5rem 0', fontSize: '0.9rem' }}>
-                    <strong>Profile:</strong> {data?.agentProfiles.find(p => p.id === agent.profileId)?.name || 'None Selected'}
-                  </p>
-                  <p style={{ margin: '0.5rem 0', fontSize: '0.9rem' }}>
-                    <strong>Skills:</strong> {agent.skillIds?.length || 0} included
-                  </p>
-                  <p style={{ margin: '0.5rem 0', fontSize: '0.9rem' }}>
-                    <strong>Layers:</strong> {agent.layerIds?.length || 0} included
-                  </p>
-                  <p style={{ margin: '0.5rem 0', fontSize: '0.9rem' }}>
-                    <strong>Provider:</strong> {agent.provider || 'None'}
-                  </p>
-                  <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem' }}>
-                    <button
-                      onClick={() => handleLoadAgent(agent)}
-                      style={{ flex: 1, padding: '0.5rem', background: '#00838f', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
-                    >
-                      Load
-                    </button>
-                    <button
-                      onClick={() => handleDeleteAgent(index)}
-                      style={{ padding: '0.5rem', background: '#d32f2f', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </div>
+                <SavedAgentCard key={index} agent={agent} index={index} onLoad={handleLoadAgent} onDelete={handleDeleteAgent} data={data}/>
               ))}
             </div>
           </section>
