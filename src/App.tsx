@@ -3,9 +3,6 @@ import type  { AgentData, SavedAgent } from '../types/types'
 import Loader from '../components/Loader'
 import SavedAgentCard from '../components/SavedAgentCard'
 import SelectedListComponent from '../components/SelectedListComponent'
-import Select from 'react-select'
-import Particles, { initParticlesEngine } from '@tsparticles/react'
-import { loadSlim } from '@tsparticles/slim'
 
 function App() {
   const [data, setData] = useState<AgentData | null>(null)
