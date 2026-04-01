@@ -1,9 +1,55 @@
 @import "tailwindcss";
 
-:root {
+@theme {
     --font-sans: sans-serif;
+    --animate-gradient: gradient 1s linear infinite;
+    --animate-rotate: rotate 1s linear infinite;
+     @keyframes gradient {
+        0% ,100%{
+          background-position: 0% 50%;
+        }
+        50% {
+          background-position: 100% 50%; 
+        }
+    }
+    @keyframes rotate {
+        0% { rotate: 0deg; }
+        100% { rotate: 360deg; }
+    }
 }
 
 @layer base {
-    body {@apply  font-sans}
+    body {@apply  font-sans bg-[#020621]}  /*  bg-[#020621] */
+
+    .sperk { @apply bg-linear-120 from-[#6C63FF] to-[#FF6B9D] shadow-[0px_0px_30px_rgba(108,99,255,0.4)] bg-size-[400%,400%] animate-gradient}
+    .heading { @apply font-extrabold tracking-[-1px] bg-linear-120 from-white from-0% to-[rgba(255,255,255,0.65)] to-100% bg-clip-text text-transparent }
+    .glass { @apply bg-[rgba(255,255,255,0.06)] backdrop-blur-[24px] border border-[rgba(255,255,255,0.12)] rounded-3xl text-white shadow-[0_8px_40px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.07)]}
+    .animated-gradient-button { @apply px-4 py-8 text-lg text-white border-none rounded-full cursor-pointer bg-size-[400%,400%] bg-linear-120 from-[#6C63FF] to-[#FF6B9D] animate-gradient}
+    .loading-bg{@apply absolute inset-0 backdrop-blur-[3px] bg-linear-90 from-[rgba(3,3,7,0.2)] to-[rgba(122,50,74,0.2)] flex items-center justify-center z-10 transition-all duration-300}
+
+    .loader {    
+  --r1: 154%;
+  --r2: 68.5%;
+  width: 100px;
+  aspect-ratio: 1;
+  border-radius: 50%; 
+  background:
+    radial-gradient(var(--r1) var(--r2) at top   ,#0000 79.5%,#FF6B9D 80%),
+    radial-gradient(var(--r1) var(--r2) at bottom,#FF6B9D 79.5%,#0000 80%),
+    radial-gradient(var(--r1) var(--r2) at top   ,#0000 79.5%,#FF6B9D 80%),
+    #6C63FF;
+  background-size: 50.5% 220%;
+  background-position: -100% 0%,0% 0%,100% 0%;
+  background-repeat:no-repeat;
+  animation: l9 2s infinite linear;
+}
+@keyframes l9 {
+    33%  {background-position:    0% 33% ,100% 33% ,200% 33% }
+    66%  {background-position: -100%  66%,0%   66% ,100% 66% }
+    100% {background-position:    0% 100%,100% 100%,200% 100%}
+}
+
+}
+ @layer components {
+    .container {@apply py-4 px-6 min-h-dvh min-w-full flex flex-col}
 }

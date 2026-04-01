@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import type  { AgentData, SavedAgent } from '../types/types'
-
+import Loader from '../components/Loader'
 
 function App() {
   const [data, setData] = useState<AgentData | null>(null)
@@ -133,33 +133,42 @@ function App() {
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', padding: '1rem', fontFamily: 'sans-serif' }} >
-      <header style={{ marginBottom: '2rem' }}>
-        <h1>AI Agent Builder</h1>
-        <p>Design your custom AI personality and capability set.</p>
-        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-          <button onClick={fetchAPI} disabled={loading}>
-            {loading ? 'Fetching Configuration...' : 'Reload Configuration Data'}
-          </button>
-          <span style={{ fontSize: '0.9rem', color: '#666' }}>
-            Session Active: {sessionTime}s
-          </span>
-        </div>
-      </header>
+    <>
+    {loading && (      
+       <Loader/>     
+    )}
 
+    <div className='container'>
+
+       <div className="mb-8 card-enter">
+    <div className="flex flex-wrap items-center justify-between gap-4">
+      <div>
+        <div className="flex items-center gap-3 mb-2">
+          <div className="w-11 h-11 rounded-2xl flex items-center justify-center text-xl sperk">✦</div>
+          <h1 className="font-display text-3xl heading">Agent Builder</h1>
+        </div>
+        <p className="text-sm ml-14 font-body text-white" >Design your custom AI personality &amp; capability set ✨</p>
+      </div>
+      <div className="flex items-center gap-3">
+        <span className="relative flex justify-center items-center size-12">
+          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#6C63FF] opacity-75"></span>
+          <span className="relative inline-flex justify-center items-center size-10 rounded-full glass">
+          <span id="timer-display" className="font-display text-sm" >{sessionTime}</span>
+          </span>
+        </span>
+        <button onClick={fetchAPI} disabled={loading} id="reload-btn" className="btn-glow flex items-center gap-2 px-5 py-2.5 rounded-2xl font-display text-sm animated-gradient-button">
+          <span id="reload-icon" className={` ${loading? 'animate-rotate':''}`}>⟳</span>{loading ? 'Fetching' : 'Reload'}
+        </button>
+      </div>
+    </div>
+  </div>
       <main style={{ display: 'flex', flexDirection: 'column', gap: '2rem', flex: 1 }}>
         <div style={{ display: 'flex', gap: '2rem', flexDirection: 'row' }}>
           {/* Left pane: Selections */}
-          <section style={{ flex: '1 1 50%', borderRight: '1px solid #ccc', paddingRight: '1rem' }}>
+          <section className='glass' style={{ flex: '1 1 50%', borderRight: '1px solid #ccc', paddingRight: '1rem' }}>
             <h2>Configuration Options</h2>
             {error && <div style={{ color: 'red', marginBottom: '1rem' }}>Error: {error}</div>}
-
-            {/* Show loading state explicitly */}
-            {loading && (
-              <div style={{ padding: '2rem', background: '#f0f8ff', border: '1px dashed #0066cc', marginBottom: '1rem' }}>
-                Fetching simulated API... (this takes 1-3 seconds to test loading states)
-              </div>
-            )}
+            
 
             {!data && !loading && !error && <p>No data loaded.</p>}
 
@@ -232,10 +241,10 @@ function App() {
           </section>
 
           {/* Right pane: Selected configuration preview */}
-          <section style={{ flex: '1 1 50%', paddingLeft: '1rem' }}>
+          <section className='glass' style={{ flex: '1 1 50%', paddingLeft: '1rem' }}>
             <h2>Current Agent Configuration</h2>
 
-            <div style={{ background: '#f5f5f5', padding: '1rem', borderRadius: '8px', minHeight: '300px' }}>
+            <div style={{  padding: '1rem', borderRadius: '8px', minHeight: '300px' }}>
               <h3 style={{ marginTop: 0 }}>Profile</h3>
               {selectedProfile && data ? (
                 <p>
@@ -318,7 +327,7 @@ function App() {
 
         {/* Bottom Panel: Saved Agents */}
         {savedAgents.length > 0 && (
-          <section style={{ padding: '1.5rem', background: '#e0f7fa', borderRadius: '8px' }}>
+          <section className='glass' style={{ padding: '1.5rem', borderRadius: '8px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
               <h2 style={{ margin: 0 }}>Saved Agents</h2>
               <button
@@ -335,7 +344,7 @@ function App() {
             </div>
             <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap' }}>
               {savedAgents.map((agent, index) => (
-                <div key={index} style={{ padding: '1rem', background: 'white', borderRadius: '8px', border: '1px solid #b2ebf2', minWidth: '220px', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}>
+                <div key={index} className='glass' style={{ padding: '1rem', borderRadius: '8px', border: '1px solid #b2ebf2', minWidth: '220px', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}>
                   <h3 style={{ marginTop: 0, color: '#006064' }}>{agent.name}</h3>
                   <p style={{ margin: '0.5rem 0', fontSize: '0.9rem' }}>
                     <strong>Profile:</strong> {data?.agentProfiles.find(p => p.id === agent.profileId)?.name || 'None Selected'}
@@ -370,6 +379,7 @@ function App() {
         )}
       </main>
     </div>
+    </>
   )
 }
 
